@@ -789,3 +789,57 @@ nav {
   font-size:10px;
   text-align:right
 }
+
+.contact form {
+  position:relative
+}
+
+.contact-honeypot {
+  position:absolute;
+  left:-10000px;
+  width:1px;
+  height:1px;
+  overflow:hidden
+}
+
+.contact .form-note {
+  grid-column:1/-1;
+  margin:0;
+  color:#625a4d;
+  font-size:12px;
+  line-height:1.5
+}
+
+.contact .form-error {
+  grid-column:1/-1;
+  margin:0;
+  color:#8a3b2a;
+  font-size:14px;
+  line-height:1.5
+}
+
+.contact button:disabled {
+  opacity:.65;
+  cursor:wait
+}
+
+.turnstile-slot {
+  grid-column:1/-1
+}
+
+.contact-success {
+  border-top:2px solid var(--gold);
+  padding-top:18px
+}
+
+.contact-success h3 {
+  font:400 28px Georgia,serif;
+  margin:0 0 12px
+}
+
+.contact-success p {
+  margin:0;
+  max-width:460px;
+  line-height:1.7;
+  color:#575149
+}
