@@ -1,0 +1,3 @@
+﻿# Static site. GitHub pushes publish the repository root; there is no build step.
+[build]
+  publish = "."
