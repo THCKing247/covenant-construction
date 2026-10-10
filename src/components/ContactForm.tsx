@@ -4,8 +4,9 @@ import { FormEvent, useState } from "react";
 import { ContactSuccess } from "@/components/ContactSuccess";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
 import {
-  FOOT_TRAFFIC,
-  LOCATION_TYPES,
+  BUDGET_RANGES,
+  PROJECT_TIMELINES,
+  PROJECT_TYPES,
   contactFailureMessage,
   formatUsPhone,
 } from "@/lib/contactLead";
@@ -80,15 +81,6 @@ export function ContactForm() {
         disabled={sending}
       />
       <input
-        id="businessName"
-        name="businessName"
-        autoComplete="organization"
-        placeholder="Business name *"
-        required
-        maxLength={500}
-        disabled={sending}
-      />
-      <input
         id="phone"
         name="phone"
         type="tel"
@@ -110,6 +102,14 @@ export function ContactForm() {
         maxLength={500}
         disabled={sending}
       />
+      <select id="projectType" name="projectType" defaultValue="" required disabled={sending}>
+        <option value="">Project type *</option>
+        {PROJECT_TYPES.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
       <input
         id="address"
         className="wide"
@@ -122,17 +122,17 @@ export function ContactForm() {
         maxLength={500}
         disabled={sending}
       />
-      <select id="locationType" name="locationType" defaultValue="" required disabled={sending}>
-        <option value="">Location type *</option>
-        {LOCATION_TYPES.map((option) => (
-          <option key={option} value={option}>
-            {option}
+      <select id="timeline" name="timeline" defaultValue="" required disabled={sending}>
+        <option value="">Preferred start *</option>
+        {PROJECT_TIMELINES.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
           </option>
         ))}
       </select>
-      <select id="footTraffic" name="footTraffic" defaultValue="" required disabled={sending}>
-        <option value="">Foot traffic *</option>
-        {FOOT_TRAFFIC.map((option) => (
+      <select id="budget" name="budget" defaultValue="" disabled={sending}>
+        <option value="">Approximate budget</option>
+        {BUDGET_RANGES.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
@@ -141,7 +141,7 @@ export function ContactForm() {
       <textarea
         id="message"
         name="message"
-        placeholder="Tell us about your project"
+        placeholder="Tell us about your project goals, scope, and any timeline details"
         maxLength={4000}
         disabled={sending}
       />

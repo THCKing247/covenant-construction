@@ -1,20 +1,33 @@
 import { site } from "@/lib/site";
 
-export const LOCATION_TYPES = [
-  "Bar / restaurant",
-  "Family entertainment center",
-  "Hotel / motel",
-  "Arcade / retail",
-  "Laundromat",
-  "Waiting room / office",
+export const PROJECT_TYPES = [
+  "New home construction",
+  "Home addition",
+  "Whole-home remodel",
+  "Kitchen remodel",
+  "Bathroom remodel",
+  "ADU / guest house",
+  "Outdoor living / exterior",
+  "Repairs & improvements",
+  "Commercial / tenant improvement",
   "Other",
 ] as const;
 
-export const FOOT_TRAFFIC = [
-  { value: "under-50", label: "Under 50 people per day" },
-  { value: "50-150", label: "50-150 per day" },
-  { value: "150-400", label: "150-400 per day" },
-  { value: "400-plus", label: "400+ per day" },
+export const PROJECT_TIMELINES = [
+  { value: "asap", label: "ASAP" },
+  { value: "1-3-months", label: "1–3 months" },
+  { value: "3-6-months", label: "3–6 months" },
+  { value: "6-plus-months", label: "6+ months" },
+  { value: "exploring", label: "Just exploring" },
+] as const;
+
+export const BUDGET_RANGES = [
+  { value: "under-25k", label: "Under $25,000" },
+  { value: "25k-75k", label: "$25,000–$75,000" },
+  { value: "75k-150k", label: "$75,000–$150,000" },
+  { value: "150k-300k", label: "$150,000–$300,000" },
+  { value: "300k-plus", label: "$300,000+" },
+  { value: "unsure", label: "Not sure yet" },
 ] as const;
 
 const REQUIRED_MAX = 500;
@@ -22,12 +35,12 @@ const MESSAGE_MAX = 4000;
 
 export type ContactLead = {
   name: string;
-  businessName: string;
   phone: string;
   email: string;
   address: string;
-  locationType: string;
-  footTraffic: string;
+  projectType: string;
+  timeline: string;
+  budget: string;
   message: string;
 };
 
@@ -59,8 +72,12 @@ export function isValidUsPhone(value: string): boolean {
   return /^[2-9]\d{2}[2-9]\d{6}$/.test(digits);
 }
 
-export function footTrafficLabel(value: string): string | undefined {
-  return FOOT_TRAFFIC.find((option) => option.value === value)?.label;
+export function timelineLabel(value: string): string | undefined {
+  return PROJECT_TIMELINES.find((option) => option.value === value)?.label;
+}
+
+export function budgetLabel(value: string): string | undefined {
+  return BUDGET_RANGES.find((option) => option.value === value)?.label;
 }
 
 export function leadRecipients(): string[] {
@@ -89,22 +106,21 @@ function checkRequired(value: string, label: string): string | null {
 
 export function parseContactLead(formData: FormData): ContactParseResult {
   const name = readText(formData, "name");
-  const businessName = readText(formData, "businessName");
   const phone = readText(formData, "phone");
   const email = readText(formData, "email");
   const address = readText(formData, "address");
-  const locationType = readText(formData, "locationType");
-  const footTraffic = readText(formData, "footTraffic");
+  const projectType = readText(formData, "projectType");
+  const timeline = readText(formData, "timeline");
+  const budget = readText(formData, "budget");
   const message = readText(formData, "message");
 
   const requiredError =
     checkRequired(name, "Name") ||
-    checkRequired(businessName, "Business name") ||
     checkRequired(phone, "Phone") ||
     checkRequired(email, "Email") ||
-    checkRequired(address, "Address") ||
-    checkRequired(locationType, "Location type") ||
-    checkRequired(footTraffic, "Foot traffic");
+    checkRequired(address, "Project address") ||
+    checkRequired(projectType, "Project type") ||
+    checkRequired(timeline, "Preferred timeline");
   if (requiredError) return { ok: false, error: requiredError };
 
   if (message.length > MESSAGE_MAX) {
@@ -116,23 +132,26 @@ export function parseContactLead(formData: FormData): ContactParseResult {
   if (!isValidUsPhone(phone)) {
     return { ok: false, error: "Enter a valid 10-digit US phone number." };
   }
-  if (!LOCATION_TYPES.includes(locationType as (typeof LOCATION_TYPES)[number])) {
-    return { ok: false, error: "Choose a location type." };
+  if (!PROJECT_TYPES.includes(projectType as (typeof PROJECT_TYPES)[number])) {
+    return { ok: false, error: "Choose a project type." };
   }
-  if (!footTrafficLabel(footTraffic)) {
-    return { ok: false, error: "Choose a foot traffic range." };
+  if (!timelineLabel(timeline)) {
+    return { ok: false, error: "Choose a preferred timeline." };
+  }
+  if (budget && !budgetLabel(budget)) {
+    return { ok: false, error: "Choose a valid budget range." };
   }
 
   return {
     ok: true,
     lead: {
       name,
-      businessName,
       phone: formatUsPhone(phone),
       email,
       address,
-      locationType,
-      footTraffic,
+      projectType,
+      timeline,
+      budget,
       message,
     },
   };
@@ -152,7 +171,7 @@ function oneLine(value: string): string {
 }
 
 export function leadSubject(lead: ContactLead): string {
-  return `[${site.businessName}] contact lead: ${oneLine(lead.businessName)} (${oneLine(lead.name)})`;
+  return `[${site.businessName}] contact lead: ${oneLine(lead.projectType)} (${oneLine(lead.name)})`;
 }
 
 export function confirmationSubject(): string {
@@ -162,14 +181,14 @@ export function confirmationSubject(): string {
 function leadRows(lead: ContactLead): Array<[string, string]> {
   const rows: Array<[string, string]> = [
     ["Name", lead.name],
-    ["Business", lead.businessName],
     ["Phone", lead.phone],
     ["Email", lead.email],
-    ["Address", lead.address],
-    ["Location type", lead.locationType],
-    ["Foot traffic", footTrafficLabel(lead.footTraffic) ?? lead.footTraffic],
+    ["Project address", lead.address],
+    ["Project type", lead.projectType],
+    ["Preferred timeline", timelineLabel(lead.timeline) ?? lead.timeline],
   ];
-  if (lead.message) rows.push(["Message", lead.message]);
+  if (lead.budget) rows.push(["Approximate budget", budgetLabel(lead.budget) ?? lead.budget]);
+  if (lead.message) rows.push(["Project details", lead.message]);
   return rows;
 }
 
