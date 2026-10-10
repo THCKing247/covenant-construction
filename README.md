@@ -18,6 +18,8 @@ Set these in the host (Netlify) environment. Do not commit real tokens.
 
 `POSTMARK_FROM_EMAIL` must be a verified sender in Postmark. If the token or from address is missing, the form tells the visitor to call (831) 524-1175 or email info@covenantconstruction.group.
 
+The contact form uses the existing Turnstile widget (`0x4AAAAAAFS0CUwmZoMGGMAM`, action `contact`). Store `TURNSTILE_SECRET_KEY` in Netlify’s environment variables. Do not put the secret in git or in chat. Until that secret is set, quote submissions are rejected. After it is set, redeploy so the server can verify the token. If the site is also served from a Netlify preview hostname, add that hostname to `TURNSTILE_HOSTNAMES`.
+
 ### NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
 Browser key with Maps JavaScript API and Places API enabled. Restrict the key by HTTP referrer to:
