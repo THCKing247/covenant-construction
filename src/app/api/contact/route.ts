@@ -17,15 +17,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Please check the form and try again." }, { status: 400 });
   }
 
-  if (process.env.TURNSTILE_SECRET_KEY?.trim()) {
-    const token = formData.get("cf-turnstile-response");
-    const verified = await verifyTurnstile(typeof token === "string" ? token : "", clientIp(request));
-    if (!verified) {
-      return NextResponse.json(
-        { error: "Please complete the security check before submitting." },
-        { status: 400 }
-      );
-    }
+  const token = formData.get("cf-turnstile-response");
+  const verified = await verifyTurnstile(typeof token === "string" ? token : "", clientIp(request));
+  if (!verified) {
+    return NextResponse.json(
+      { error: "Please complete the security check before submitting." },
+      { status: 403 }
+    );
   }
 
   const website = formData.get("website");

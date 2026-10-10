@@ -11,8 +11,9 @@ Set these in the host (Netlify) environment. Do not commit real tokens.
 | `POSTMARK_SERVER_TOKEN` | Yes | Postmark server API token. Sent as `X-Postmark-Server-Token`. |
 | `POSTMARK_FROM_EMAIL` | Yes | Verified Postmark sender on this domain. Use `info@covenantconstruction.group`. |
 | `CONTACT_LEAD_TO_EMAIL` | No | Inbox that receives leads. Defaults to `info@covenantconstruction.group`. Comma-separated addresses are allowed. |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | No | Cloudflare Turnstile site key. The widget is shown only when this is set. |
-| `TURNSTILE_SECRET_KEY` | No | Cloudflare Turnstile secret. When set, submissions are verified before the form is accepted. |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | No | Overrides the Turnstile site key baked into the contact form. The configured key is `0x4AAAAAAFS0CUwmZoMGGMAM`. |
+| `TURNSTILE_SECRET_KEY` | Yes | Cloudflare Turnstile secret for the existing widget. The contact handler rejects quotes until this is set in the host environment. Do not commit it. |
+| `TURNSTILE_HOSTNAMES` | No | Comma-separated hostnames accepted from siteverify. Defaults to `covenantconstruction.group` and `www.covenantconstruction.group`. Local development also allows `localhost` and `127.0.0.1`. |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | No | Browser key for address suggestions on the project address field. |
 
 `POSTMARK_FROM_EMAIL` must be a verified sender in Postmark. If the token or from address is missing, the form tells the visitor to call (831) 524-1175 or email info@covenantconstruction.group.

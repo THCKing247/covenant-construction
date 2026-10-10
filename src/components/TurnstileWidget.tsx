@@ -7,6 +7,7 @@ type TurnstileApi = {
     element: HTMLElement,
     options: {
       sitekey: string;
+      action: string;
       callback: (token: string) => void;
       "expired-callback": () => void;
       "error-callback": () => void;
@@ -45,6 +46,7 @@ export function TurnstileWidget({
       if (widgetId) window.turnstile.remove(widgetId);
       widgetId = window.turnstile.render(containerRef.current, {
         sitekey: siteKey,
+        action: "contact",
         callback: (token) => onTokenRef.current(token),
         "expired-callback": () => onTokenRef.current(""),
         "error-callback": () => onTokenRef.current(""),

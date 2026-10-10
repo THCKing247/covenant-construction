@@ -5,8 +5,9 @@ import { ContactSuccess } from "@/components/ContactSuccess";
 import { AddressAutocompleteInput } from "@/components/forms/AddressAutocompleteInput";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
 import { PROJECT_TYPES, contactFailureMessage, formatUsPhone } from "@/lib/contactLead";
+import { turnstileSiteKey } from "@/lib/turnstile";
 
-const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || "";
+const siteKey = turnstileSiteKey();
 
 export function ContactForm() {
   const [phone, setPhone] = useState("");
