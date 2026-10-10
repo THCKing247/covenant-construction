@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { ContactSuccess } from "@/components/ContactSuccess";
+import { AddressAutocompleteInput } from "@/components/forms/AddressAutocompleteInput";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
 import { PROJECT_TYPES, contactFailureMessage, formatUsPhone } from "@/lib/contactLead";
 
@@ -104,14 +105,13 @@ export function ContactForm() {
           </option>
         ))}
       </select>
-      <input
+      <AddressAutocompleteInput
         id="address"
         className="wide"
         name="address"
-        autoComplete="street-address"
         placeholder="Project street address *"
         value={address}
-        onChange={(event) => setAddress(event.target.value)}
+        onChange={setAddress}
         required
         maxLength={500}
         disabled={sending}
