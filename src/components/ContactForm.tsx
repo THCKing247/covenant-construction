@@ -3,12 +3,7 @@
 import { FormEvent, useState } from "react";
 import { ContactSuccess } from "@/components/ContactSuccess";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
-import {
-  FOOT_TRAFFIC,
-  LOCATION_TYPES,
-  contactFailureMessage,
-  formatUsPhone,
-} from "@/lib/contactLead";
+import { PROJECT_TYPES, contactFailureMessage, formatUsPhone } from "@/lib/contactLead";
 
 const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || "";
 
@@ -58,7 +53,7 @@ export function ContactForm() {
       setPhone("");
       setAddress("");
       resetTurnstile();
-      setSuccessMessage(data?.message || "Thank you. We received your request and will be in touch soon.");
+      setSuccessMessage(data?.message || "Thank you. We received your project details and will be in touch soon.");
     } catch {
       setError(contactFailureMessage);
       resetTurnstile();
@@ -75,15 +70,6 @@ export function ContactForm() {
         name="name"
         autoComplete="name"
         placeholder="Full name *"
-        required
-        maxLength={500}
-        disabled={sending}
-      />
-      <input
-        id="businessName"
-        name="businessName"
-        autoComplete="organization"
-        placeholder="Business name *"
         required
         maxLength={500}
         disabled={sending}
@@ -110,34 +96,45 @@ export function ContactForm() {
         maxLength={500}
         disabled={sending}
       />
+      <select id="projectType" name="projectType" defaultValue="" required disabled={sending}>
+        <option value="">Project type *</option>
+        {PROJECT_TYPES.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
       <input
         id="address"
         className="wide"
         name="address"
         autoComplete="street-address"
-        placeholder="Project address *"
+        placeholder="Project street address *"
         value={address}
         onChange={(event) => setAddress(event.target.value)}
         required
         maxLength={500}
         disabled={sending}
       />
-      <select id="locationType" name="locationType" defaultValue="" required disabled={sending}>
-        <option value="">Location type *</option>
-        {LOCATION_TYPES.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-      <select id="footTraffic" name="footTraffic" defaultValue="" required disabled={sending}>
-        <option value="">Foot traffic *</option>
-        {FOOT_TRAFFIC.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      <input
+        id="city"
+        name="city"
+        autoComplete="address-level2"
+        placeholder="City *"
+        required
+        maxLength={500}
+        disabled={sending}
+      />
+      <input
+        id="zip"
+        name="zip"
+        autoComplete="postal-code"
+        inputMode="numeric"
+        placeholder="ZIP code *"
+        required
+        maxLength={10}
+        disabled={sending}
+      />
       <textarea
         id="message"
         name="message"

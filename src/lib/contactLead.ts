@@ -1,20 +1,10 @@
 import { site } from "@/lib/site";
 
-export const LOCATION_TYPES = [
-  "Bar / restaurant",
-  "Family entertainment center",
-  "Hotel / motel",
-  "Arcade / retail",
-  "Laundromat",
-  "Waiting room / office",
-  "Other",
-] as const;
-
-export const FOOT_TRAFFIC = [
-  { value: "under-50", label: "Under 50 people per day" },
-  { value: "50-150", label: "50-150 per day" },
-  { value: "150-400", label: "150-400 per day" },
-  { value: "400-plus", label: "400+ per day" },
+export const PROJECT_TYPES = [
+  "Residential Building",
+  "Remodeling & Design-Build",
+  "Repairs & Improvements",
+  "Commercial Building",
 ] as const;
 
 const REQUIRED_MAX = 500;
@@ -22,12 +12,12 @@ const MESSAGE_MAX = 4000;
 
 export type ContactLead = {
   name: string;
-  businessName: string;
   phone: string;
   email: string;
   address: string;
-  locationType: string;
-  footTraffic: string;
+  city: string;
+  zip: string;
+  projectType: string;
   message: string;
 };
 
@@ -36,7 +26,7 @@ export type ContactParseResult =
   | { ok: false; error: string };
 
 export const contactSuccessMessage =
-  "Thank you. We received your request and will be in touch soon.";
+  "Thank you. We received your project details and will be in touch soon.";
 
 export const contactFailureMessage = `We couldn't send your request. Call ${site.phoneDisplay} or email ${site.email}.`;
 
@@ -57,10 +47,6 @@ export function formatUsPhone(value: string): string {
 export function isValidUsPhone(value: string): boolean {
   const digits = digitsFromPhone(value);
   return /^[2-9]\d{2}[2-9]\d{6}$/.test(digits);
-}
-
-export function footTrafficLabel(value: string): string | undefined {
-  return FOOT_TRAFFIC.find((option) => option.value === value)?.label;
 }
 
 export function leadRecipients(): string[] {
@@ -89,22 +75,22 @@ function checkRequired(value: string, label: string): string | null {
 
 export function parseContactLead(formData: FormData): ContactParseResult {
   const name = readText(formData, "name");
-  const businessName = readText(formData, "businessName");
   const phone = readText(formData, "phone");
   const email = readText(formData, "email");
   const address = readText(formData, "address");
-  const locationType = readText(formData, "locationType");
-  const footTraffic = readText(formData, "footTraffic");
+  const city = readText(formData, "city");
+  const zip = readText(formData, "zip");
+  const projectType = readText(formData, "projectType");
   const message = readText(formData, "message");
 
   const requiredError =
     checkRequired(name, "Name") ||
-    checkRequired(businessName, "Business name") ||
     checkRequired(phone, "Phone") ||
     checkRequired(email, "Email") ||
-    checkRequired(address, "Address") ||
-    checkRequired(locationType, "Location type") ||
-    checkRequired(footTraffic, "Foot traffic");
+    checkRequired(address, "Project address") ||
+    checkRequired(city, "City") ||
+    checkRequired(zip, "ZIP code") ||
+    checkRequired(projectType, "Project type");
   if (requiredError) return { ok: false, error: requiredError };
 
   if (message.length > MESSAGE_MAX) {
@@ -116,23 +102,23 @@ export function parseContactLead(formData: FormData): ContactParseResult {
   if (!isValidUsPhone(phone)) {
     return { ok: false, error: "Enter a valid 10-digit US phone number." };
   }
-  if (!LOCATION_TYPES.includes(locationType as (typeof LOCATION_TYPES)[number])) {
-    return { ok: false, error: "Choose a location type." };
+  if (!/^\d{5}(?:-\d{4})?$/.test(zip)) {
+    return { ok: false, error: "Enter a valid ZIP code." };
   }
-  if (!footTrafficLabel(footTraffic)) {
-    return { ok: false, error: "Choose a foot traffic range." };
+  if (!PROJECT_TYPES.includes(projectType as (typeof PROJECT_TYPES)[number])) {
+    return { ok: false, error: "Choose a project type." };
   }
 
   return {
     ok: true,
     lead: {
       name,
-      businessName,
       phone: formatUsPhone(phone),
       email,
       address,
-      locationType,
-      footTraffic,
+      city,
+      zip,
+      projectType,
       message,
     },
   };
@@ -152,7 +138,7 @@ function oneLine(value: string): string {
 }
 
 export function leadSubject(lead: ContactLead): string {
-  return `[${site.businessName}] contact lead: ${oneLine(lead.businessName)} (${oneLine(lead.name)})`;
+  return `[${site.businessName}] quote request: ${oneLine(lead.projectType)} (${oneLine(lead.name)})`;
 }
 
 export function confirmationSubject(): string {
@@ -162,20 +148,20 @@ export function confirmationSubject(): string {
 function leadRows(lead: ContactLead): Array<[string, string]> {
   const rows: Array<[string, string]> = [
     ["Name", lead.name],
-    ["Business", lead.businessName],
     ["Phone", lead.phone],
     ["Email", lead.email],
-    ["Address", lead.address],
-    ["Location type", lead.locationType],
-    ["Foot traffic", footTrafficLabel(lead.footTraffic) ?? lead.footTraffic],
+    ["Project address", lead.address],
+    ["City", lead.city],
+    ["ZIP code", lead.zip],
+    ["Project type", lead.projectType],
   ];
-  if (lead.message) rows.push(["Message", lead.message]);
+  if (lead.message) rows.push(["Project details", lead.message]);
   return rows;
 }
 
 export function leadTextBody(lead: ContactLead): string {
   const lines = leadRows(lead).map(([label, value]) => `${label}: ${value}`);
-  return [`New ${site.businessName} contact lead`, "", ...lines].join("\n");
+  return [`New ${site.businessName} quote request`, "", ...lines].join("\n");
 }
 
 export function leadHtmlBody(lead: ContactLead): string {
@@ -185,19 +171,19 @@ export function leadHtmlBody(lead: ContactLead): string {
         `<p><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value).replace(/\n/g, "<br>")}</p>`
     )
     .join("");
-  return `<!DOCTYPE html><html><body style="font-family:Georgia,serif;color:#161412;"><h1 style="font-size:20px;font-weight:400;">New ${escapeHtml(site.businessName)} contact lead</h1>${rows}</body></html>`;
+  return `<!DOCTYPE html><html><body style="font-family:Georgia,serif;color:#161412;"><h1 style="font-size:20px;font-weight:400;">New ${escapeHtml(site.businessName)} quote request</h1>${rows}</body></html>`;
 }
 
 export function confirmationTextBody(lead: ContactLead): string {
   return [
     `We received your ${site.businessName} request.`,
     "",
-    `Thank you, ${lead.name}. We have your details and will be in touch soon.`,
+    `Thank you, ${lead.name}. We have your project details and will be in touch soon.`,
     "",
     `If you need us sooner, call ${site.phoneDisplay} or email ${site.email}.`,
   ].join("\n");
 }
 
 export function confirmationHtmlBody(lead: ContactLead): string {
-  return `<!DOCTYPE html><html><body style="font-family:Georgia,serif;color:#161412;"><h1 style="font-size:20px;font-weight:400;">We received your request</h1><p>Thank you, ${escapeHtml(lead.name)}. We have your details and will be in touch soon.</p><p>If you need us sooner, call ${escapeHtml(site.phoneDisplay)} or email <a href="mailto:${escapeHtml(site.email)}">${escapeHtml(site.email)}</a>.</p></body></html>`;
+  return `<!DOCTYPE html><html><body style="font-family:Georgia,serif;color:#161412;"><h1 style="font-size:20px;font-weight:400;">We received your project request</h1><p>Thank you, ${escapeHtml(lead.name)}. We have your project details and will be in touch soon.</p><p>If you need us sooner, call ${escapeHtml(site.phoneDisplay)} or email <a href="mailto:${escapeHtml(site.email)}">${escapeHtml(site.email)}</a>.</p></body></html>`;
 }
