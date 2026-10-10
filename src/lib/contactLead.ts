@@ -15,8 +15,6 @@ export type ContactLead = {
   phone: string;
   email: string;
   address: string;
-  city: string;
-  zip: string;
   projectType: string;
   message: string;
 };
@@ -78,8 +76,6 @@ export function parseContactLead(formData: FormData): ContactParseResult {
   const phone = readText(formData, "phone");
   const email = readText(formData, "email");
   const address = readText(formData, "address");
-  const city = readText(formData, "city");
-  const zip = readText(formData, "zip");
   const projectType = readText(formData, "projectType");
   const message = readText(formData, "message");
 
@@ -88,8 +84,6 @@ export function parseContactLead(formData: FormData): ContactParseResult {
     checkRequired(phone, "Phone") ||
     checkRequired(email, "Email") ||
     checkRequired(address, "Project address") ||
-    checkRequired(city, "City") ||
-    checkRequired(zip, "ZIP code") ||
     checkRequired(projectType, "Project type");
   if (requiredError) return { ok: false, error: requiredError };
 
@@ -102,9 +96,6 @@ export function parseContactLead(formData: FormData): ContactParseResult {
   if (!isValidUsPhone(phone)) {
     return { ok: false, error: "Enter a valid 10-digit US phone number." };
   }
-  if (!/^\d{5}(?:-\d{4})?$/.test(zip)) {
-    return { ok: false, error: "Enter a valid ZIP code." };
-  }
   if (!PROJECT_TYPES.includes(projectType as (typeof PROJECT_TYPES)[number])) {
     return { ok: false, error: "Choose a project type." };
   }
@@ -116,8 +107,6 @@ export function parseContactLead(formData: FormData): ContactParseResult {
       phone: formatUsPhone(phone),
       email,
       address,
-      city,
-      zip,
       projectType,
       message,
     },
@@ -151,8 +140,6 @@ function leadRows(lead: ContactLead): Array<[string, string]> {
     ["Phone", lead.phone],
     ["Email", lead.email],
     ["Project address", lead.address],
-    ["City", lead.city],
-    ["ZIP code", lead.zip],
     ["Project type", lead.projectType],
   ];
   if (lead.message) rows.push(["Project details", lead.message]);

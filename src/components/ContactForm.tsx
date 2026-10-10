@@ -109,30 +109,11 @@ export function ContactForm() {
         id="address"
         className="wide"
         name="address"
-        placeholder="Project street address *"
+        placeholder="Project address *"
         value={address}
         onChange={setAddress}
         required
         maxLength={500}
-        disabled={sending}
-      />
-      <input
-        id="city"
-        name="city"
-        autoComplete="address-level2"
-        placeholder="City *"
-        required
-        maxLength={500}
-        disabled={sending}
-      />
-      <input
-        id="zip"
-        name="zip"
-        autoComplete="postal-code"
-        inputMode="numeric"
-        placeholder="ZIP code *"
-        required
-        maxLength={10}
         disabled={sending}
       />
       <textarea
